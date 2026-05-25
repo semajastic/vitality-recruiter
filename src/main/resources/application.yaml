@@ -1,6 +1,6 @@
 spring:
   application:
-    name: coc-reddit-recruitter
+    name: vitality-recruitter
 
 app-config:
   # cron-hello: "0 0 18 * * MON"
@@ -12,7 +12,7 @@ app-config:
 
 clashhitters:
   clan-tag: "#8VV2CGYY"
-  base-url: https://clashhitters.com
+  base-url: https://vitality.clashhitters.com
   recruit-stats-uri: /api/recruit-stats-data
 
 reddit:

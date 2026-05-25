@@ -1,1 +1,1 @@
-# coc-reddit-recruiter
+# vitality-recruiter
