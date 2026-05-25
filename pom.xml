@@ -8,7 +8,7 @@
 		<version>4.1.0-SNAPSHOT</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.semajastic.vitalityrecruiter</groupId>
+	<groupId>com.semajastic</groupId>
 	<artifactId>vitality-recruitter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
