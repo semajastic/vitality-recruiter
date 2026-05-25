@@ -1,0 +1,1 @@
+[Recruiting] {{clan_name}} | {{clan_tag}} | Townhall {{required_town_hall}}+ | Clan Level {{clan_level}} | Donation, Wars, CWL, Raids & Clan Games
