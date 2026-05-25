@@ -28,6 +28,7 @@ public class RedditWebClientConfig {
 
     return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient))
         .baseUrl(this.redditConfigProperties.getTokenBaseUrl())
+        .defaultHeader("User-Agent", this.redditConfigProperties.getUserAgent())
         .build();
   }
 

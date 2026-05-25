@@ -3,8 +3,7 @@ spring:
     name: vitality-recruitter
 
 app-config:
-  # cron-hello: "0 0 18 * * MON"
-  cron-hello: "0 21 0 * * *"
+  cron-post-reddit: "0 0 18 * * MON"
   zone: America/New_York
   clan-max-size: 50
   cwl-blackout-start-day: 1
@@ -21,6 +20,7 @@ reddit:
   grant-type: password
   submit-base-url: https://oauth.reddit.com
   submit-uri: /api/submit
+  user-agent: "java:com.semajastic.vitalityrecruiter:v1.0 (by /u/${REDDIT_USERNAME})"
   subreddit: ${REDDIT_SUBREDDIT:}
   username: ${REDDIT_USERNAME:}
   password: ${REDDIT_PASSWORD:}

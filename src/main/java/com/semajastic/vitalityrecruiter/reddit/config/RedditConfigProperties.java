@@ -15,6 +15,7 @@ public class RedditConfigProperties {
   private String submitBaseUrl;
   private String submitUri;
   private String subreddit;
+  private String userAgent;
   private String username;
   private String password;
   private String clientId;
