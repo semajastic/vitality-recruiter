@@ -6,9 +6,13 @@ import com.semajastic.cocredditrecruiter.clashhitters.model.ClashHittersRecruitS
 import com.semajastic.cocredditrecruiter.clashhitters.model.ClashHittersWar;
 import com.semajastic.cocredditrecruiter.clashhitters.service.ClashHittersService;
 import com.semajastic.cocredditrecruiter.config.AppConfigProperties;
+import com.semajastic.cocredditrecruiter.reddit.config.RedditConfigProperties;
+import com.semajastic.cocredditrecruiter.reddit.model.RedditPost;
+import com.semajastic.cocredditrecruiter.reddit.service.RedditService;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +39,9 @@ public class RecruitService {
   private static final String EMPTY_LOG_ROW = "| - | - | - | - | - |";
 
   @Autowired private ClashHittersService clashHittersService;
+  @Autowired private RedditService redditService;
   @Autowired private AppConfigProperties appConfigProperties;
+  @Autowired private RedditConfigProperties redditConfigProperties;
 
   private String titleTemplate;
   private String textTemplate;
@@ -54,11 +60,76 @@ public class RecruitService {
     return this.clashHittersService.getRecruitStatsData().map(this::renderMarkdown);
   }
 
+  public Mono<RedditPost> postReddit() {
+    return this.clashHittersService
+        .getRecruitStatsData()
+        .flatMap(
+            stats -> {
+              try {
+                validateRecruitAllowed(stats);
+              } catch (RecruitValidationException e) {
+                return Mono.error(e);
+              }
+              RenderedPost post = renderPostContent(stats);
+              validateRedditCredentials();
+              return this.redditService
+                  .getToken(
+                      this.redditConfigProperties.getUsername(),
+                      this.redditConfigProperties.getPassword(),
+                      this.redditConfigProperties.getClientId(),
+                      this.redditConfigProperties.getClientSecret())
+                  .flatMap(
+                      token ->
+                          this.redditService.submitPost(
+                              token.getAccessToken(),
+                              this.redditConfigProperties.getSubreddit(),
+                              post.title(),
+                              post.text()));
+            });
+  }
+
   String renderMarkdown(ClashHittersRecruitStats stats) {
+    RenderedPost post = renderPostContent(stats);
+    return post.title() + "\n\n" + post.text();
+  }
+
+  RenderedPost renderPostContent(ClashHittersRecruitStats stats) {
     Map<String, String> substitutions = buildSubstitutions(stats);
     String title = substitute(this.titleTemplate, substitutions).trim();
     String text = substitute(this.textTemplate, substitutions);
-    return title + "\n\n" + text;
+    return new RenderedPost(title, text);
+  }
+
+  void validateRecruitAllowed(ClashHittersRecruitStats stats) {
+    validateClanNotFull(stats);
+    validateNotCwlBlackout(LocalDate.now(this.zoneId));
+  }
+
+  void validateNotCwlBlackout(LocalDate date) {
+    int day = date.getDayOfMonth();
+    int start = this.appConfigProperties.getCwlBlackoutStartDay();
+    int end = this.appConfigProperties.getCwlBlackoutEndDay();
+    if (day >= start && day <= end) {
+      throw new RecruitValidationException("CWL is in progress and recruit is disabled");
+    }
+  }
+
+  void validateClanNotFull(ClashHittersRecruitStats stats) {
+    Integer memberCount = stats.getMemberCount();
+    Integer clanMaxSize = this.appConfigProperties.getClanMaxSize();
+    if (memberCount != null && clanMaxSize != null && memberCount >= clanMaxSize) {
+      throw new RecruitValidationException("Clan is full");
+    }
+  }
+
+  private void validateRedditCredentials() {
+    if (!StringUtils.hasText(this.redditConfigProperties.getUsername())
+        || !StringUtils.hasText(this.redditConfigProperties.getPassword())
+        || !StringUtils.hasText(this.redditConfigProperties.getClientId())
+        || !StringUtils.hasText(this.redditConfigProperties.getClientSecret())
+        || !StringUtils.hasText(this.redditConfigProperties.getSubreddit())) {
+      throw new RecruitValidationException("Reddit credentials are not configured");
+    }
   }
 
   private Map<String, String> buildSubstitutions(ClashHittersRecruitStats stats) {
@@ -215,4 +286,6 @@ public class RecruitService {
     ClassPathResource resource = new ClassPathResource(path);
     return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
   }
+
+  record RenderedPost(String title, String text) {}
 }

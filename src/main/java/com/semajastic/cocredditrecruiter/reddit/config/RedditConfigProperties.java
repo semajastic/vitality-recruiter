@@ -14,5 +14,10 @@ public class RedditConfigProperties {
   private String grantType;
   private String submitBaseUrl;
   private String submitUri;
+  private String subreddit;
+  private String username;
+  private String password;
+  private String clientId;
+  private String clientSecret;
 
 }

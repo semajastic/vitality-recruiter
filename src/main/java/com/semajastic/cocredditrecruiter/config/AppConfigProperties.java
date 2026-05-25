@@ -11,5 +11,8 @@ public class AppConfigProperties {
 
   private String cronHello;
   private String zone;
+  private Integer clanMaxSize;
+  private Integer cwlBlackoutStartDay;
+  private Integer cwlBlackoutEndDay;
 
 }

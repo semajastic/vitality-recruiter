@@ -6,8 +6,23 @@ app-config:
   # cron-hello: "0 0 18 * * MON"
   cron-hello: "0 21 0 * * *"
   zone: America/New_York
+  clan-max-size: 50
+  cwl-blackout-start-day: 1
+  cwl-blackout-end-day: 10
 
 clashhitters:
   clan-tag: "#8VV2CGYY"
   base-url: https://clashhitters.com
   recruit-stats-uri: /api/recruit-stats-data
+
+reddit:
+  token-base-url: https://www.reddit.com
+  token-uri: /api/v1/access_token
+  grant-type: password
+  submit-base-url: https://oauth.reddit.com
+  submit-uri: /api/submit
+  subreddit: ${REDDIT_SUBREDDIT:}
+  username: ${REDDIT_USERNAME:}
+  password: ${REDDIT_PASSWORD:}
+  client-id: ${REDDIT_CLIENT_ID:}
+  client-secret: ${REDDIT_CLIENT_SECRET:}
